@@ -41,7 +41,7 @@ graph build_graph(const std::string& input_data)
 		{
 			graph_instance[first].push_back(second);
 		}
-		if(first != "start" && first != "end")
+		if(first != "start")
 		{
 			graph_instance[second].push_back(first);
 		}
@@ -51,70 +51,123 @@ graph build_graph(const std::string& input_data)
     return graph_instance;
 }
 
-void dfs(std::map<std::string, bool>& visited_nodes, graph& graph_instance, const std::string& node)
-{
-    if (!visited_nodes[node])
-    {
-    	std::cout << node << ", ";
-		visited_nodes[node] = true;
-		const auto node_neighbors = graph_instance[node];
-		for (const auto& neighbor : node_neighbors)
-		{
-			dfs(visited_nodes, graph_instance, neighbor);
-		}
-	}
-}
+using visited_map = std::map<std::string, int>;
+using paths_map = std::map<int, std::string>;
 
-using visitedMap = std::map<std::string, bool>;
-using pathsMap = std::map<int, std::string>;
-
-int traverse_all_path(const std::string& from, const std::string& to, visitedMap& visited_nodes, graph& graph_instance,
-	pathsMap& path, int path_index)
+int traverse_all_path(const std::string& from, const std::string& to, visited_map& visited_nodes, graph& graph_instance,
+	paths_map& path, int path_index)
 {
 	int result = 0;
-	visited_nodes[from] = true;
+	visited_nodes[from] += 1;
 	path[path_index] = from;
 	path_index++;
+	const auto node_neighbors = graph_instance[from];
 
 	if (from == to) 
 	{
 		for (int i = 0; i < path_index; i++)
+		{
 			std::cout << path[i] << " ";
+		}
 		std::cout << std::endl;
 		result += 1;
 	}
-	else // If current vertex is not destination
+	else
 	{
-		const auto node_neighbors = graph_instance[from];
 		for (const auto& neighbor : node_neighbors)
-			if (!visited_nodes[neighbor] || std::isupper(neighbor[0]))
+		{
+			if (visited_nodes[neighbor] < 1 || std::isupper(neighbor[0]))
 			{
 				result += traverse_all_path(neighbor, to, visited_nodes, graph_instance, path, path_index);
 			}
+		}
 	}
 
-	// Remove current vertex from path[] and mark it as unvisited
 	path_index--;
-	visited_nodes[from] = false;
+	path.erase(path_index);
+	visited_nodes[from] -= 1;
+	return result;
+}
+
+bool is_any_node_visited_twice(const visited_map& visited_nodes)
+{
+	return std::any_of(visited_nodes.begin(), visited_nodes.end(), [](const std::pair<const std::string, int>& pair)
+	{
+		if (std::islower(pair.first[0]))
+		{
+			return pair.second > 1;
+		}
+		return false;
+	});
+}
+
+int traverse_all_path_2(const std::string& from, const std::string& to, visited_map& visited_nodes, graph& graph_instance,
+	paths_map& path, int path_index)
+{
+	int result = 0;
+	visited_nodes[from] += 1;
+	path[path_index] = from;
+	path_index++;
+	const auto &node_neighbors = graph_instance[from];
+
+	if (from == to) 
+	{
+		//for (int i = 0; i < path_index; i++)
+		//{
+		//	std::cout << path[i] << " ";
+		//}
+		//std::cout << std::endl;
+		result += 1;
+	}
+	else
+	{
+		for (const auto& neighbor : node_neighbors)
+		{
+			if (visited_nodes[neighbor] < 1 || std::isupper(neighbor[0]) || !is_any_node_visited_twice(visited_nodes))
+			{
+				result += traverse_all_path_2(neighbor, to, visited_nodes, graph_instance, path, path_index);
+			}
+		}
+	}
+
+	path_index--;
+	path.erase(path_index);
+	visited_nodes[from] -= 1;
 	return result;
 }
 
 void print_all_paths(graph& graph_instance, const std::string& from, const std::string& to)
 {
 	std::queue<std::string> node_queue;
-	visitedMap visited_nodes;
-	pathsMap paths;
-	int path_index = 0;
+	visited_map visited_nodes;
+	paths_map paths;
+	constexpr int path_index = 0;
 
 	const auto result = traverse_all_path(from, to, visited_nodes, graph_instance, paths, path_index);
 	std::cout << "Number of paths = " << result << std::endl;
 }
 
+void print_all_paths_2(graph& graph_instance, const std::string& from, const std::string& to)
+{
+	std::queue<std::string> node_queue;
+	visited_map visited_nodes;
+	visited_map visited_twice_nodes;
+	paths_map paths;
+	constexpr int path_index = 0;
+
+	const auto result = traverse_all_path_2(from, to, visited_nodes, graph_instance, paths, path_index);
+	std::cout << "Number of paths = " << result << std::endl;
+}
 
 int main()
 {
-	const auto result = read_file("input_day12_larger.txt");
+	// part 1
+	auto result = read_file("input_day12.txt");
     auto graph_instance = build_graph(result);
 	print_all_paths(graph_instance, "start", "end");
-    std::cout<< "";
+
+	// part 2
+	result = read_file("input_day12.txt");
+    graph_instance = build_graph(result);
+	print_all_paths_2(graph_instance, "start", "end");
 }
