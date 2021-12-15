@@ -45,8 +45,6 @@ graph build_graph(const std::string& input_data)
 		{
 			graph_instance[second].push_back(first);
 		}
-		// std::cout << first << std::endl;
-		// std::cout << second << std::endl;
     }
 	graph_instance["end"].clear();
 
@@ -67,46 +65,56 @@ void dfs(std::map<std::string, bool>& visited_nodes, graph& graph_instance, cons
 	}
 }
 
-std::string traverse_path(std::map<std::string, bool>& visited_nodes, graph& graph_instance, const std::string& node, std::string path)
+using visitedMap = std::map<std::string, bool>;
+using pathsMap = std::map<int, std::string>;
+
+int traverse_all_path(const std::string& from, const std::string& to, visitedMap& visited_nodes, graph& graph_instance,
+	pathsMap& path, int path_index)
 {
-	path += node;
-	if(node == "end")
-	{
-		return path;
-	}
+	int result = 0;
+	visited_nodes[from] = true;
+	path[path_index] = from;
+	path_index++;
 
-	const auto node_neighbors = graph_instance[node];
-	for (const auto& neighbor : node_neighbors)
+	if (from == to) 
 	{
-		if (!visited_nodes[neighbor])
-		{
-			traverse_path(visited_nodes, graph_instance, neighbor, path);
-			if (std::islower(neighbor[0]))
+		for (int i = 0; i < path_index; i++)
+			std::cout << path[i] << " ";
+		std::cout << std::endl;
+		result += 1;
+	}
+	else // If current vertex is not destination
+	{
+		const auto node_neighbors = graph_instance[from];
+		for (const auto& neighbor : node_neighbors)
+			if (!visited_nodes[neighbor] || std::isupper(neighbor[0]))
 			{
-				visited_nodes[neighbor] = true;
+				result += traverse_all_path(neighbor, to, visited_nodes, graph_instance, path, path_index);
 			}
-		}
 	}
 
-	return path;
+	// Remove current vertex from path[] and mark it as unvisited
+	path_index--;
+	visited_nodes[from] = false;
+	return result;
 }
 
-void traverse_graph(graph graph_instance)
+void print_all_paths(graph& graph_instance, const std::string& from, const std::string& to)
 {
 	std::queue<std::string> node_queue;
-	std::map<std::string, bool> visited_nodes;
-	std::string path{};
+	visitedMap visited_nodes;
+	pathsMap paths;
+	int path_index = 0;
 
-	auto result = traverse_path(visited_nodes, graph_instance, "start", path);
-	std::cout << result;
+	const auto result = traverse_all_path(from, to, visited_nodes, graph_instance, paths, path_index);
+	std::cout << "Number of paths = " << result << std::endl;
 }
 
 
 int main()
 {
-	const auto result = read_file("input_day12_small.txt");
-    std::cout << result;
+	const auto result = read_file("input_day12_larger.txt");
     auto graph_instance = build_graph(result);
-	traverse_graph(graph_instance);
+	print_all_paths(graph_instance, "start", "end");
     std::cout<< "";
 }

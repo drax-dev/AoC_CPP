@@ -144,7 +144,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="input_day12.txt" />
+    <Text Include="input_day12_larger.txt" />
     <Text Include="input_day12_small.txt" />
+    <Text Include="input_day12_small2.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

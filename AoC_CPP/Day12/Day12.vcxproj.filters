@@ -26,5 +26,11 @@
     <Text Include="input_day12_small.txt">
       <Filter>Pliki zasobów</Filter>
     </Text>
+    <Text Include="input_day12_small2.txt">
+      <Filter>Pliki zasobów</Filter>
+    </Text>
+    <Text Include="input_day12_larger.txt">
+      <Filter>Pliki zasobów</Filter>
+    </Text>
   </ItemGroup>
 </Project>
