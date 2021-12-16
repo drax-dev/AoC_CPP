@@ -1,5 +1,5 @@
 # AoC_CPP
-previous days in pytthon repo: https://github.com/drax-dev/AoC
+previous days in Python repo: https://github.com/drax-dev/AoC
 
 - day_12:     part 1 :white_check_mark:     | part 2 :white_check_mark:
 - day_13:     part 1 :white_check_mark:     | part 2 :white_check_mark:
